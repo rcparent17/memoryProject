@@ -3,6 +3,38 @@
 
 #define NUM_ENTRIES 1000
 
+/*
+ *
+ *-----------------------------------PAGE TABLE----------------------------------
+ *
+ */
+
+struct PageTableEntry{
+	int dirtyBit;
+	int protectionBit;
+	int validityBit;
+	int frameNumber;
+};
+
+struct PageTable{
+	struct PageTableEntry entries[NUM_ENTRIES];
+};
+
+struct PageTableEntry initEntry(int frameNo, int prot, int valid, int dirty){
+	struct PageTableEntry pte;
+	pte.frameNumber = frameNo;
+	pte.protectionBit = prot;
+	pte.validityBit = valid;
+	pte.dirtyBit = dirty;
+	return pte;
+}
+
+/*
+ *
+ *--------------------------------END PAGE TABLE---------------------------------
+ *
+ */
+
 struct logicalAddress{
 	u_int16_t address;
 	u_int8_t  page;
@@ -33,7 +65,7 @@ int main(int argc, char* argv[]){
 		return 1;
 	}
 
-	FILE* BACKING_STORE = fopen("BACKING_STORE.bin", "rb+");
+	FILE* BACKING_STORE = fopen("handouts/BACKING_STORE.bin", "rb+");
 	if(BACKING_STORE == NULL){
 		printf("Unable to locate BACKING_STORE.bin. It must be in the same directory as the excecutable.\n");
 		return 1;
