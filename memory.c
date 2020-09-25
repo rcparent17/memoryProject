@@ -20,13 +20,22 @@ struct PageTable{
 	struct PageTableEntry entries[NUM_ENTRIES];
 };
 
-struct PageTableEntry initEntry(int frameNo, int prot, int valid, int dirty){
+struct PageTableEntry makeEntry(int frameNo, int prot, int valid, int dirty){
 	struct PageTableEntry pte;
 	pte.frameNumber = frameNo;
 	pte.protectionBit = prot;
 	pte.validityBit = valid;
 	pte.dirtyBit = dirty;
 	return pte;
+}
+
+struct PageTable makeTable(){
+	struct PageTable pt;
+	int frameNo = 0;
+	for(int i = 0; i < NUM_ENTRIES; i++){
+		pt.entries[i] = makeEntry(frameNo++, 0, 1, 0);
+	}
+	return pt;
 }
 
 /*
