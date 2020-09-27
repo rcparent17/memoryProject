@@ -1,1 +1,22 @@
-hi!
+Reill Parent, Sean Cotter
+CS-451
+Project 4
+
+
+This project simulates address translation (i.e. virtual addresses to physical addresses).
+It accomplishes this through the use of a page table and TLB.
+
+For each entry in addresses.txt, it first checks to see if the page is in the TLB.
+If it isn't, it then looks through the page table. If the entry still isn't found, 
+it will load the page from BACKING_STORE.bin, treating it like RAM.
+
+The TLB can hold 16 entries, and the page table can hold 256. each entry has a 256
+byte page containing the actual data from the backing store that gets directly read 
+when a TLB/page hit occurs.
+
+
+
+LIMITATIONS
+----------------------------
+- Only designed for a maximum of 1000 entries
+- The backing store must be named "BACKING_STORE.bin" and it must be in the same directory as the executable.

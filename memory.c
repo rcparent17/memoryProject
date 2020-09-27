@@ -167,7 +167,6 @@ void tlbNextLRU(struct TLB* tlb){
 
 // handles a hit on the TLB, rearranges removeQueue for LRU implementation
 struct HitData tlbHit(struct TLB* tlb, struct LogicalAddress la, int index){
-	tlbHits++;
 
 	// adjust remove queue
 	int pageHit = la.page; // the page that got hit
@@ -189,16 +188,12 @@ struct HitData tlbHit(struct TLB* tlb, struct LogicalAddress la, int index){
 struct HitData tlbLoad(struct TLB* tlb, struct PageTable* pt, struct LogicalAddress la, FILE* bs){
 	if(tlb->size == 0) return ptLoad(pt, tlb, la, bs); // if the tlb is empty, look through the page table
 
-	int found = 0;
-	int i = -1;
-	for(i = 0; i < tlb->size; i++){
+	for(int i = 0; i < tlb->size; i++){
 		if(tlb->entries[i].pageNum == la.page){
-			found = 1;
-			break;
+			tlbHits++;
+			return tlbHit(tlb, la, i); // if found, it's a hit
 		}
 	}
-
-	if(found) return tlbHit(tlb, la, i); // if found, it's a hit
 
 	return ptLoad(pt, tlb, la, bs); // if not found, try loading the logical address the page table
 }
@@ -267,7 +262,6 @@ int main(int argc, char* argv[]){
 		physicalAddresses[i] = tlbLoad(&tlb, &pt, addresses[i], bStore);
 		printf("original: %i     \t real: %i \t value: %i\n", addresses[i].original, physicalAddresses[i].pAddr, physicalAddresses[i].value);
 	}
-
 
 	// calclate our page fault rate and tlb hit rate, and print them
 	float faultRate = 100.0 * (float) pageFaults / (float) NUM_ENTRIES;
