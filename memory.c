@@ -153,20 +153,12 @@ void tlbNextLRU(struct TLB* tlb){
 	int i;
 	int removePage = tlb->removeQueue[0]; // the number of the page that needs removed
 	// overwrite the lru page (removeQueue[0]) and shift everything after it left
-	for(i = 0; i < tlb->size; i++){
+	for(i = 0; i < tlb->size - 1; i++){
 		tlb->removeQueue[i] = tlb->removeQueue[i+1];
 	}
 
-	// also remove the entry from the table, first find the correct entry and then remove it by shifting everything after it left
-	int removeIndex = 0;
-	for(i = 0; i < tlb->size - 1; i++){
-		if(tlb->entries[i].pageNum == removePage){
-			removeIndex = i;
-			break;
-		}
-	}
-	// shift loop
-	for(i = removeIndex; i < tlb->size - 1; i++){
+	// also remove the entry from the table by shifting everything after it left
+	for(i = removePage; i < tlb->size - 1; i++){
 		tlb->entries[i] = tlb->entries[i+1];
 	}
 	tlb->size--; // we've removed an entry!
@@ -185,7 +177,7 @@ struct HitData tlbHit(struct TLB* tlb, struct LogicalAddress la, int index){
 	tlb->removeQueue[tlb->size] = pageHit; // add it to the end
 
 	struct HitData hd; // the physical address and value retrieved from the logical address
-	hd.pAddr = tlb->entries[index].frame; // translate the page frame left and add the offset to get the physical address
+	hd.pAddr = (tlb->entries[index].frame << 8) | la.offset; // translate the page frame left and add the offset to get the physical address
 	hd.value = tlb->entries[index].page[la.offset]; // retrieve the value at the specified address
 	if(hd.value > 0x7F) hd.value -= F_P_PT_SIZE; // if the number's sign bit is 1 flip it
 
@@ -199,7 +191,7 @@ struct HitData tlbLoad(struct TLB* tlb, struct PageTable* pt, struct LogicalAddr
 
 	int found = 0;
 	int i = -1;
-	for(int i = 0; i < tlb->size; i++){
+	for(i = 0; i < tlb->size; i++){
 		if(tlb->entries[i].pageNum == la.page){
 			found = 1;
 			break;
